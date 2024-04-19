@@ -344,7 +344,7 @@ def perform_demixing(M,
 if __name__ == '__main__':
 
     # General Parameters
-    t_exp = 5000  # in timesteps
+    t_exp = 2000  # in timesteps
     num_t_samples = 15  # numer of linearly spaces sampling times
     num_samples_per = 20  # numer of samples per timestep
     n_grid = 50  # grid size (n_grid^2 particles)
@@ -358,7 +358,7 @@ if __name__ == '__main__':
     
     # Dead-Zone and Demixing tests
     deadzone = None # Define a deadzone in the mixer (range [0,1] as % of mixer length). None to turn off
-    D_demix = 1e-5 # "Diffusion coefficient" for demixing. 0 to turn demixing off 
+    D_demix = 0 # "Diffusion coefficient" for demixing. 0 to turn demixing off 
     t_demix = 2000 # in timesteps
     
     t_samples = list(np.linspace(0, t_exp - 1, num_t_samples).astype(int))  # Generate list of sampling times
