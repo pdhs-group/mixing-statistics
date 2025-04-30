@@ -285,6 +285,7 @@ def perform_demixing(M,
                      t_exp,
                      t_samples=[],
                      num_samples_per=3,
+                     n_grid=100,
                      Z=5,
                      D_demix=1e-4,
                      visualize_mix=True):
@@ -311,7 +312,7 @@ def perform_demixing(M,
                               expname='M_before_demix')
     
     # Calculate number of demixing swaps (0 is allowed)
-    num_demix = int((n_grid**2) * D)
+    num_demix = int((n_grid**2) * D_demix)
     
     cnt_t = 0  # Initialize sampling time counter
     
@@ -384,6 +385,7 @@ if __name__ == '__main__':
                                          t_exp=t_demix,
                                          t_samples=t_samples_demix,
                                          num_samples_per=num_samples_per,
+                                         n_grid=n_grid,
                                          Z=Z,
                                          D_demix=D_demix,
                                          visualize_mix=True)
@@ -407,7 +409,7 @@ if __name__ == '__main__':
                                  col='midnightblue',
                                  lbl='$s^2(t)$',
                                  y_lines=[sig_0, sig_z],
-                                 y_line_labels=['$\sigma_0^2$', '$\sigma_z^2$'])
+                                 y_line_labels=[r'$\sigma_0^2$', r'$\sigma_z^2$'])
         ax, fig = visualize_s2_t(t_samples,
                                  b2,
                                  col='firebrick',
@@ -424,7 +426,7 @@ if __name__ == '__main__':
                                  col='midnightblue',
                                  lbl='$s_{n-1}^2(t)$',
                                  y_lines=[sig_0, sig_z],
-                                 y_line_labels=['$\sigma_0^2$', '$\sigma_z^2$'])
+                                 y_line_labels=[r'$\sigma_0^2$', r'$\sigma_z^2$'])
         ax, fig = visualize_s2_t(t_samples,
                                  b2_n1,
                                  col='firebrick',
