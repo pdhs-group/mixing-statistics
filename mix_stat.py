@@ -108,11 +108,11 @@ def visualize_s2_t(t,
     
     return ax, fig
 
-def swap_n_elements_dz(M, n, deadzone=0.1):
+def swap_n_elements(M, n, deadzone=0):
     # Consistency Check
     if not 0 <= deadzone < 1:
-        print('ERROR: Deadzone value needs to be between 0 and 1. Exiting..')
-        return
+        print('ERROR: Deadzone value needs to be between 0 and 1. Setting to 0..')
+        deadzone = 0
     
     for i in range(n):
         coords_1 = tuple(np.random.randint(0, int((1-deadzone)*len(M[:, 0])), 2))
@@ -121,12 +121,31 @@ def swap_n_elements_dz(M, n, deadzone=0.1):
     
     return M
 
-def swap_n_elements(M, n, deadzone=None):
+def split_and_shuffle(M, n=1, k=4, deadzone=0):
+    # Remove deadzone
+    r = int(M.shape[0]*deadzone)
+    c = int(M.shape[1]*deadzone)
 
+    # M_tmp is the "inner part" below r and right of c
+    M_tmp = M[r:,c:]
+
+    # k cannot be greater than any shape of M_tmp
+    if k > min(M_tmp.shape[0], M_tmp.shape[1]):
+        k = min(M_tmp.shape[0], M_tmp.shape[1])
+        print('Careful, k is smaller than the dimension of M')
+        
+    # Shuffle n times
     for i in range(n):
-        coords_1 = tuple(np.random.randint(0, len(M[:, 0]), 2))
-        coords_2 = tuple(np.random.randint(0, len(M[:, 0]), 2))
-        M[coords_1], M[coords_2] = M[coords_2], M[coords_1]
+        # Shuffle once in x and once in y direction
+        for ax in range(2):
+            # Split in k random slices
+            cuts = np.sort(np.random.choice(range(1, M_tmp.shape[ax]), size=k-1, replace=False))
+            M_split = np.split(M_tmp, cuts, axis=ax)
+            # Shuffle and restack
+            np.random.shuffle(M_split)
+            M_tmp = np.concatenate(M_split, axis=ax)
+    
+    M[r:,c:] = M_tmp
     
     return M
 
@@ -225,7 +244,8 @@ def perform_experiment(t_exp,
                        Z=5,
                        D=1e-4,
                        visualize_mix=True,
-                       deadzone=None):
+                       deadzone=0,
+                       mechanism='swap'):
 
     if t_exp is not int:
       t_exp = int(t_exp)
@@ -258,11 +278,14 @@ def perform_experiment(t_exp,
     
     # Loop through all timesteps
     for i in range(t_exp):
-        # Swap corresponding number of times
-        if deadzone is None:
-            M = swap_n_elements(M, num_swaps)  
+        # Do the mixing!
+        if mechanism == 'split':
+            # Split and shuffle rows and columns
+            M = split_and_shuffle(M, n=1, k=4, deadzone=deadzone)
         else:
-            M = swap_n_elements_dz(M, num_swaps, deadzone)
+            # Swap corresponding number of times
+            M = swap_n_elements(M, num_swaps, deadzone)
+        
             
         # Time for some samples!
         if i in t_samples:
@@ -353,12 +376,13 @@ if __name__ == '__main__':
     c_A = 0.5  # relative concentration component A
     D = 5e-4  # "Diffusion coefficient" (number of random swaps per particle and timestep)
     alpha = 75  # Confidence limit for variance (in %)
+    mechanism = 'swap' # Mixing mechanism, use 'swap' or 'split'
     
     # Additional (optional) settings
     analyze_samples = True # Do you want to analyze samples after experiment?
     
     # Dead-Zone and Demixing tests
-    deadzone = None # Define a deadzone in the mixer (range [0,1] as % of mixer length). None to turn off
+    deadzone = 0 # Define a deadzone in the mixer (range [0,1] as % of mixer length). None to turn off
     D_demix = 0 # "Diffusion coefficient" for demixing. 0 to turn demixing off 
     t_demix = 2000 # in timesteps
     
@@ -374,7 +398,8 @@ if __name__ == '__main__':
                                     Z=Z,
                                     D=D,
                                     visualize_mix=True,
-                                    deadzone=deadzone)
+                                    deadzone=deadzone,
+                                    mechanism=mechanism)
     
     # Simulate demixing after experiment
     if D_demix > 0:
