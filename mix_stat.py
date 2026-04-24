@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 A small toolkit for playing with the statistics of a solid mixing process
 For further information see e.g. Stieß2009, Mechanische Verfahrenstechnik (in german)
@@ -53,7 +52,7 @@ def visualize_M(M,
         for i in idx:
             ax.scatter(i[0], i[1], marker='o', s=10, color='k', label='sample size')
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles[:1], labels[:1])
+        ax.legend(handles[:1], labels[:1], loc='upper right')
       
     plt.tight_layout()
     
@@ -285,8 +284,7 @@ def perform_experiment(t_exp,
         else:
             # Swap corresponding number of times
             M = swap_n_elements(M, num_swaps, deadzone)
-        
-            
+                    
         # Time for some samples!
         if i in t_samples:
             for n in range(num_samples_per):
@@ -334,8 +332,8 @@ def perform_demixing(M,
                               title='State of Mixture before Demixing ($t=0$)',
                               expname='M_before_demix')
     
-    # Calculate number of demixing swaps (0 is allowed)
-    num_demix = int((n_grid**2) * D_demix)
+    # Calculate number of demixing swaps (minimum 1)
+    num_demix = max(1, int((n_grid**2)*D_demix))
     
     cnt_t = 0  # Initialize sampling time counter
     
